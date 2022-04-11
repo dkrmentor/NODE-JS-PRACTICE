@@ -1,83 +1,101 @@
-const express = require('express')
-const Joi = require('joi')
+const express = require("express");
+const req = require("express/lib/request");
+const res = require("express/lib/response");
+const Joi = require("joi");
 
-const app = express()
-app.use(express.json())
-app.get('/',(req,res)=>{
-    res.send('hello!!!!!-----!!')
-})
+const app = express();
+app.use(express.json()); //MIDDLEWARE
+// app.get("/", (req, res) => {
+//   res.send("hello!!!!!-----!!");
+// });
 
-app.get('/api/courses',(req,res)=>{
-    res.send([1,2,3])
-})
+// app.get("/api/numbers", (req, res) => {
+//   res.send([1, 2, 3]);
+// });
 
-app.get('/api/courses/:id',(req,res)=>{
-    // res.send(req.params) //in object form
-    res.send(req.params.id)
+// app.get("/api/number/:id", (req, res) => {
+//   // res.send(req.params) //in object form
+//   res.send(req.params.id);
+// });
 
-})
+// app.get("/api/:month/:year", (req, res) => {
+//   res.send(req.params);
+// });
+// //if you want to define property name in url using ? example :http://localhost:5000/api/check/?id=2
+// app.get("/api/check", (req, res) => {
+//   res.send(req.query);
+// });
 
-app.get('/api/:month/:year',(req,res)=>{
-    res.send(req.params)
-})
-//if you want to define property name in url using ? example :http://localhost:5000/api/check/?id=2
-app.get('/api/check',(req,res)=>{
-    res.send(req.query)
-})
+const courses = [
+  { id: 1, name: "course1" },
+  { id: 2, name: "course2" },
+  { id: 3, name: "course3" },
+];
 
-const courses=[
-    {id:1, name:'course1'},
-    {id:2, name:'course2'},
-    {id:3, name:'course3'},
+app.get("/api/newcourses", (req, res) => {
+  res.send(courses);
+});
 
-]
+app.get("/api/newcourses/:id", (req, res) => {
+  const course = courses.find((c) => c.id === parseInt(req.params.id));
+  if (!course) return res.status(404).send("bhai nhi milrah");
+  res.send(course);
+});
 
+// app.post('/api/newcourse',(req,res)=>{
+//     const course = {id:4, name:'course4'}
+//     courses.push(course)
+//     res.send(course)
 
-app.get('/courses/:id',(req,res)=>{
-    const course = courses.find(c=>c.id===parseInt(req.params.id))
-    if(!course) res.status(404).send('bhai nhi milrah');
-    res.send(course)
-})
+// })
 
-app.post('/newcourse',(req,res)=>{
-    const course = {id:4, name:'course4'}
-    courses.push(course)
-    res.send(course)
+//run the program -> go to postman -> set post -> add url -> go to body -> select raw -> select json - > add ur course name then send
+app.post("/api/newcourses", (req, res) => {
+  const { error } = validateCourse(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
-})
-app.post('/newcourses',(req,res)=>{
-    const course = {id:courses.length+1, name:req.body.name};
-    courses.push(course)
-    res.send(course)
+  const course = { id: courses.length + 1, name: req.body.name };
+  courses.push(course);
+  res.send(course);
+});
 
-})
+app.put("/api/newcourses/:id", (req, res) => {
+  const course = courses.find((c) => c.id === parseInt(req.params.id));
+  if (!course) return res.status(404).send("bhai nhi milrah");
 
-app.put('/newcourses/:id',(req,res)=>{
-    const course = courses.find(c=>c.id===parseInt(req.params.id))
-    if(!course) res.status(404).send('bhai nhi milrah');
-    
-    
-   const {error}= validateCourse(req.body)
-   if(error){
-       res.status(400).send(error.detail[0].message)
-       return
-   }
-   course.name=req.body.name;
-   res.send(course)
+  //{error} =>result.error
+  const { error } = validateCourse(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
+  //update course
+  course.name = req.body.name;
+  res.send(course);
+});
 
-})
-function validateCourse(courses){
-  const schema={
-      name:Joi.string().min(3).required()
+app.delete("/api/newcourses/:id", (req, res) => {
+  const course = courses.find((c) => c.id === parseInt(req.params.id));
+  if (!course) return res.status(404).send("bhai nhi milrah");
 
-  }
-    return Joi.validate(courses,schema)
+  //{error} =>result.error
+  const index = courses.indexOf(course);
+  courses.splice(index, 1);
 
+  //show course
+  res.send(course);
+});
+
+function validateCourse(courses) {
+  //   if (!red.body.name || req.body.name.length < 3) {
+  //     //400 bad req
+  //     res.status(400).send("name req and should be least 3 character");
+  //     return;
+  //   }
+  //instead if you can use joi  -> schema define properties
+
+  const schema = Joi.object({ name: Joi.string().min(3).required() });
+
+  return schema.validate(courses);
 }
-
-
 const port = process.env.PORT || 4000;
-console.log(process.env.PORT)
-app.listen(port, ()=>console.log(`listening... ${port}`))
 
+app.listen(port, () => console.log(`listening... ${port}`));
