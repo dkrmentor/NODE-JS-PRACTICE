@@ -1,10 +1,10 @@
 const express = require("express");
-const req = require("express/lib/request");
-const res = require("express/lib/response");
+// const req = require("express/lib/request");
+// const res = require("express/lib/response");
 const Joi = require("joi");
 
 const app = express();
-app.use(express.json()); //MIDDLEWARE
+app.use(express.json()); //MIDDLEWARE -> it force data to be in json format
 // app.get("/", (req, res) => {
 //   res.send("hello!!!!!-----!!");
 // });
@@ -25,7 +25,7 @@ app.use(express.json()); //MIDDLEWARE
 // app.get("/api/check", (req, res) => {
 //   res.send(req.query);
 // });
-
+//array of object
 const courses = [
   { id: 1, name: "course1" },
   { id: 2, name: "course2" },
@@ -37,8 +37,8 @@ app.get("/api/newcourses", (req, res) => {
 });
 
 app.get("/api/newcourses/:id", (req, res) => {
-  const course = courses.find((c) => c.id === parseInt(req.params.id));
-  if (!course) return res.status(404).send("bhai nhi milrah");
+  const course = courses.find((c) => c.id === parseInt(req.params.id)); //params means :__
+  if (!course) return res.status(400).send("bhai nhi milrah");
   res.send(course);
 });
 
@@ -51,17 +51,19 @@ app.get("/api/newcourses/:id", (req, res) => {
 
 //run the program -> go to postman -> set post -> add url -> go to body -> select raw -> select json - > add ur course name then send
 app.post("/api/newcourses", (req, res) => {
-  const { error } = validateCourse(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
 
+//object destructuring {error} will directly call error object FROM validate  cOURSE 
+  const { error } = validateCourse(req.body); //{error} => result.error
+   if (error) return res.status(400).send(error.details[0].message);
+   
   const course = { id: courses.length + 1, name: req.body.name };
   courses.push(course);
   res.send(course);
 });
-
+//update
 app.put("/api/newcourses/:id", (req, res) => {
   const course = courses.find((c) => c.id === parseInt(req.params.id));
-  if (!course) return res.status(404).send("bhai nhi milrah");
+  if (!course) return res.status(400).send("bhai nhi milrah");
 
   //{error} =>result.error
   const { error } = validateCourse(req.body);
@@ -74,17 +76,17 @@ app.put("/api/newcourses/:id", (req, res) => {
 
 app.delete("/api/newcourses/:id", (req, res) => {
   const course = courses.find((c) => c.id === parseInt(req.params.id));
-  if (!course) return res.status(404).send("bhai nhi milrah");
+  if (!course) return res.status(400).send("bhai nhi milrah");
 
   //{error} =>result.error
   const index = courses.indexOf(course);
-  courses.splice(index, 1);
+  courses.splice(index,1);
 
   //show course
   res.send(course);
 });
 
-function validateCourse(courses) {
+function validateCourse(data) {
   //   if (!red.body.name || req.body.name.length < 3) {
   //     //400 bad req
   //     res.status(400).send("name req and should be least 3 character");
@@ -94,8 +96,8 @@ function validateCourse(courses) {
 
   const schema = Joi.object({ name: Joi.string().min(3).required() });
 
-  return schema.validate(courses);
+  return schema.validate(data);
 }
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 9000;
 
 app.listen(port, () => console.log(`listening... ${port}`));

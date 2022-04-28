@@ -1,0 +1,6 @@
+{
+    "name":"prod",
+    "mail":{
+        "host":"dhara prod"
+    }
+}

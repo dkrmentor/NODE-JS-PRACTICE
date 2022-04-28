@@ -73,3 +73,30 @@
 
 
 
+
+
+
+
+
+
+////////////////////PRACTICE 12 VIDEO
+
+const Logger = require('./logger');
+
+const logger=new Logger()
+
+logger.on('eventname1',(arg)=>{
+    console.log('aaaaaaaaaa........',arg)
+})
+logger.log('dhara pagal')
+
+
+
+
+
+
+
+
+
+
+

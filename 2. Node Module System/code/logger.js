@@ -13,3 +13,19 @@
 // console.log("hello"+he)
 // }
 // module.exports.abc = abc;
+
+
+
+
+
+////////////////////PRACTICE 12 VIDEO
+const EventEmitter= require('events');
+
+class Logger extends EventEmitter{
+        log(message){
+            this.emit('eventname1',message)
+            console.log(message)
+        }
+}
+
+module.exports=Logger;
