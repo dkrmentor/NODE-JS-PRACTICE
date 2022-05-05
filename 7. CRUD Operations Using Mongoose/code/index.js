@@ -6,3 +6,22 @@ mongoose.connect('mongodb://localhost/playground') //connecct with mongodb (mong
     .catch((err)=>{console.error('could not connect to mongodb',err)})
 
 //schema
+
+const courseSchema = new mongoose.Schema({
+  name:String,
+  author:String,
+  tag:[ String ],
+  date: {type:date, default:Date.now},
+  isPublished:Boolean,
+})
+
+//model
+//Course ->class -> collection
+const Course = mongoose.model("Course",courseSchema)
+//course -> object -> document
+const course = new Course({
+  name:"Node Js",
+  author:"dhara",
+  tag:[ "node" , "backend" ],
+  isPublished:true,
+})
